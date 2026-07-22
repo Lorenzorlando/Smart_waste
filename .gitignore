@@ -1,0 +1,11 @@
+# === SICUREZZA E CREDENZIALI
+.env
+*.pem
+*.key
+*.cert
+
+# === AMBIENTI VIRTUALI PYTHON ===
+venv/
+.venv/
+env/
+ENV/
