@@ -1,13 +1,15 @@
-# Uso Python 3.10 slim per un'immagine leggera e stabile con TensorFlow
+# Usa Python 3.10 slim come base leggera
 FROM python:3.10-slim
 
-# Evita la scrittura di file .pyc e forza il flush dell'output dei log
+# Variabili d'ambiente per bloccare i file temporanei e ottimizzare TensorFlow
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    TF_CPP_MIN_LOG_LEVEL=2 \
+    OMP_NUM_THREADS=1
 
 WORKDIR /app
 
-# Installa le dipendenze di sistema minime per Pillow/OpenCV se necessarie
+# Installa le librerie C necessarie per Pillow senza tenere i file d'installazione
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libsm6 \
@@ -15,18 +17,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia e installa i requisiti Python
+# Copia solo il file dei requisiti prima di installare (sfrutta la cache delle varie fasi di Docker)
 COPY requirements.txt .
 
-# Usiamo tensorflow-cpu per ridurre il peso dell'immagine ed evitare crash di RAM
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Upgrade di pip e installazione super-stringente SENZA salvataggio di ruote/cache di pip
+RUN pip install --no-cache-dir --no-compile --upgrade pip && \
+    pip install --no-cache-dir --no-compile -r requirements.txt
 
-# Copia tutto il resto del progetto (app, file .h5, templates .html)
+# Copia il codice dell'app e i file .h5 / .html
 COPY . .
 
-# Porta di default per Flask/Gunicorn
+# Espone la porta usata dal container
 EXPOSE 5000
 
-# Avvio tramite Gunicorn puntando a parteflask.py (variabile app)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "2", "parteflask:app"]
+# Avvia Gunicorn con 1 solo worker per non sforare i 512 MB di RAM del piano free
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "2", "--timeout", "120", "parteflask:app"]
