@@ -3,6 +3,7 @@
 import base64
 import io
 from datetime import datetime
+import os
 
 # converto l'immagine in base64 per poterla salvare su mongodb
 def image_to_base64(image):
