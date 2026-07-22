@@ -38,7 +38,7 @@ from tensorflow.keras.models import load_model as keras_load_model
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-modello = keras_load_model("best_model.h5")
+modello = keras_load_model("best_model.h5", compile=False)
 
 
 # operazioni di preprocessing sull'immagine caricata dall'utente
