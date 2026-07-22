@@ -2,10 +2,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import os
 
-uri = "mongodb+srv://lorenzorl:ny1CNZ87907kAaCq@cluster0.jumtxyx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
-
-
+uri = os.environ.get('MONGO_URI')
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client["progetto"] # progetto è il db in mongodb
