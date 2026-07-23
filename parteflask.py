@@ -32,13 +32,15 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 from PIL import Image
 import io
 import numpy as np
-from tensorflow.keras.models import load_model as keras_load_model
-
+#from tensorflow.keras.models import load_model as keras_load_model
+import tf_keras
 
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-modello = keras_load_model("best_model.h5", compile=False)
+# Carica il modello tramite tf_keras
+modello = tf_keras.models.load_model("best_model.h5")
+# modello = keras_load_model("best_model.h5", compile=False)
 
 
 # operazioni di preprocessing sull'immagine caricata dall'utente
