@@ -33,13 +33,22 @@ from PIL import Image
 import io
 import numpy as np
 #from tensorflow.keras.models import load_model as keras_load_model
-import tf_keras
 
+from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Flatten
+
+# --- PATCH PER BUG KERAS 3 SU FILE .H5 ---
+class FixedFlatten(Flatten):
+    def call(self, inputs, **kwargs):
+        # Se Keras 3 passa il tensore dentro una lista, prendiamo il primo elemento
+        if isinstance(inputs, (list, tuple)):
+            inputs = inputs[0]
+        return super().call(inputs, **kwargs)
+# ------------------------------------------
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-# Carica il modello tramite tf_keras
-modello = tf_keras.models.load_model("best_model.h5")
+modello = load_model("best_model.h5", custom_objects={"Flatten": FixedFlatten}, compile=False)
 # modello = keras_load_model("best_model.h5", compile=False)
 
 
